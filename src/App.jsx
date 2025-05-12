@@ -48,6 +48,8 @@ function App() {
   const fadeTimeout = useRef(null)
   const agent = AGENTS[selectedAgentIdx]
   const [isLoading, setIsLoading] = useState(false)
+  const [tone, setTone] = useState('professional')
+  const [customTone, setCustomTone] = useState('')
 
   useEffect(() => {
     // Initialize Bootstrap tooltip
@@ -82,9 +84,15 @@ function App() {
     setInputMessage('');
     setIsLoading(true);
 
-    // Prepare messages for OpenAI API
+    // Prepare messages for OpenAI API with tone instruction
+    const toneInstruction = tone === 'custom' 
+      ? `Respond in the following tone: ${customTone}`
+      : tone === 'professional'
+        ? `Respond in a highly professional tone. Use formal language, complete sentences, and maintain a business-appropriate demeanor. Avoid contractions, slang, or casual expressions. Structure your responses clearly and professionally.`
+        : `Respond in a casual, friendly tone. Use contractions, conversational language, and a warm, approachable style. Feel free to use friendly expressions and a more relaxed sentence structure. Keep it natural and engaging.`;
+
     const openaiMessages = [
-      { role: 'system', content: agent.systemPrompt },
+      { role: 'system', content: `${agent.systemPrompt}\n\n${toneInstruction}` },
       ...updatedMessages.map(m => ({
         role: m.sender === 'user' ? 'user' : 'assistant',
         content: m.text
@@ -136,6 +144,10 @@ function App() {
   return (
     <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
       <div className="row w-100" style={{maxWidth: '1200px'}}>
+        <div className="col-12 text-center mb-4 mt-2">
+          <h1 className="display-4 fw-bold text-primary">AgentBuddy</h1>
+          <p className="lead text-muted">Your AI Assistant for Every Need</p>
+        </div>
         {/* Left: Image and description */}
         <div className="col-md-5 d-flex flex-column align-items-center justify-content-center p-4">
           <div className={`${fade ? 'fade show' : 'fade'}`} style={{width: '100%', maxWidth: '350px', transition: 'opacity 0.25s'}}>
@@ -229,7 +241,31 @@ function App() {
             </button>
           </form>
           <div className="d-flex align-items-center mt-4">
-            <span>{agent.prompt.split('\n').map((line, i) => <span key={i}>{line}<br/></span>)}</span>
+            <div className="d-flex align-items-center me-4">
+              <span>{agent.prompt.split('\n').map((line, i) => <span key={i}>{line}<br/></span>)}</span>
+            </div>
+            <div className="d-flex align-items-center">
+              <select 
+                className="form-select me-2" 
+                value={tone} 
+                onChange={(e) => setTone(e.target.value)}
+                style={{width: 'auto'}}
+              >
+                <option value="professional">👔 Professional</option>
+                <option value="casual">😊 Casual</option>
+                <option value="custom">✨ Custom</option>
+              </select>
+              {tone === 'custom' && (
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter custom tone..."
+                  value={customTone}
+                  onChange={(e) => setCustomTone(e.target.value)}
+                  style={{width: '200px'}}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
