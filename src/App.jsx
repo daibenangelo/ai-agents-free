@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css'
+import './bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
 import calvinImg from './assets/calvin.jpg'
 import donnaImg from './assets/donna.avif'
